@@ -1,0 +1,33 @@
+networks:
+  sistema-net:
+    driver: bridge
+
+services:
+  estoque:
+    build: ./estoque
+    container_name: estoque
+    ports:
+      - "5001:5001"
+    networks:
+      - sistema-net
+
+  catalogo:
+    build: ./catalogo
+    container_name: catalogo
+    ports:
+      - "5000:5000"
+    environment:
+      ESTOQUE_URL: "http://estoque:5001/api/produtos"
+      RELATORIO_URL: "http://relatorios:5002/api/vendas"
+    depends_on:
+      - estoque
+    networks:
+      - sistema-net
+
+  relatorios:
+    build: ./relatorios
+    container_name: relatorios
+    ports:
+      - "5002:5002"
+    networks:
+      - sistema-net

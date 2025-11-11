@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Produtos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='indexStyle.css') }}">
+</head>
+
+<body>
+    <h1>Catálogo de Produtos</h1>
+
+    <table id="tabela-produtos">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th>Quantidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Linhas serão geradas pelo JS -->
+        </tbody>
+    </table>
+
+    <div id="empty-message">Nenhum produto disponível no momento.</div>
+
+    <script>
+        // Função assíncrona que realiza a compra de um produto pelo ID
+            async function comprarProduto(id) {
+                try {
+                    // Faz uma requisição POST para a rota de compra do produto
+                    const res = await fetch(`/api/comprar/${id}`, { method: 'POST' });
+                    // Converte a resposta JSON em objeto JavaScript
+                    const data = await res.json();
+                    // Mostra uma mensagem de alerta com o resultado da compra
+                    alert(data.message);
+                    // Atualiza a tabela/catálogo após a compra para refletir a nova quantidade
+                    atualizarCatalogo();
+                } catch (err) {
+                    // Em caso de erro na requisição ou processamento, mostra no console
+                    console.error('Erro ao comprar produto:', err);
+                }
+            }
+
+            // Função assíncrona que busca os produtos do servidor e atualiza o catálogo HTML
+            async function atualizarCatalogo() {
+                try {
+                    // Faz uma requisição GET para a API de produtos
+                    const res = await fetch('/api/produtos');
+                    if (!res.ok) throw new Error('Erro na requisição');
+
+                    // Converte a resposta JSON em objeto/array JavaScript
+                    const produtos = await res.json();
+
+                    // Seleciona o corpo da tabela de produtos
+                    const tbody = document.querySelector('#tabela-produtos tbody');
+                    // Limpa a tabela antes de inserir os dados atualizados
+                    tbody.innerHTML = '';
+
+                    // Se não houver produtos, mostra a mensagem de tabela vazia
+                    if (produtos.length === 0) {
+                        document.getElementById('empty-message').style.display = 'block';
+                    } else {
+                        // Esconde a mensagem de tabela vazia
+                        document.getElementById('empty-message').style.display = 'none';
+
+                        // Itera sobre cada produto e cria uma linha (<tr>) para a tabela
+                        produtos.forEach(p => {
+                            const tr = document.createElement('tr');
+                            // Define o conteúdo da linha com os dados do produto
+                            tr.innerHTML = `
+                    <td>${p.nome}</td>
+                    <td>R$ ${p.preco.toFixed(2)}</td> <!-- Formata preço com 2 casas decimais -->
+                    <td>${p.quantidade}</td>
+                    <td>
+                        <!-- Botão de compra; desabilitado se quantidade = 0 -->
+                        <button ${p.quantidade === 0 ? 'disabled' : `onclick="comprarProduto(${p.id})"`}>Comprar</button>
+                    </td>
+                `;
+                            // Adiciona a linha criada ao corpo da tabela
+                            tbody.appendChild(tr);
+                        });
+                    }
+                } catch (err) {
+                    // Em caso de erro na requisição ou processamento, mostra no console
+                    console.error('Erro ao atualizar catálogo:', err);
+                }
+            }
+
+            // Atualiza o catálogo automaticamente a cada 2 segundos (2000 ms)
+            setInterval(atualizarCatalogo, 2000);
+
+            // Atualiza o catálogo na primeira carga da página
+            atualizarCatalogo();
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Produto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='addStyle.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>Adicionar Produto</h1>
+    </header>
+
+    <main>
+        <form method="post">
+            <div>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+
+            <div>
+                <label for="preco">Preço (R$):</label>
+                <input type="number" id="preco" name="preco" step="0.01" required>
+            </div>
+
+            <div>
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" id="quantidade" name="quantidade" required>
+            </div>
+
+            <button type="submit">Salvar</button>
+        </form>
+
+        <a href="/">← Voltar ao Estoque</a>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciador de Estoque</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='indexStyle.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>📦 Gerenciador de Estoque</h1>
+    </header>
+
+    <main>
+        <a href="/add" class="add-button">+ Adicionar Produto</a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Preço (R$)</th>
+                    <th>Quantidade</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in produtos %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.nome }}</td>
+                    <td>{{ "%.2f"|format(p.preco) }}</td>
+                    <td>{{ p.quantidade }}</td>
+                    <td class="actions">
+                        <a href="/edit/{{ p.id }}" class="btn btn-edit">Editar</a>
+                        <a href="/delete/{{ p.id }}" class="btn btn-delete"
+                            onclick="return confirm('Excluir {{ p.nome }}?')">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        // Função assíncrona que busca os produtos do servidor e atualiza a tabela HTML
+            async function atualizarTabela() {
+                try {
+                    // Faz uma requisição GET para a API de produtos
+                    const res = await fetch('/api/produtos');
+                    // Se a resposta não for OK (status != 200), lança um erro
+                    if (!res.ok) throw new Error('Erro ao buscar produtos');
+
+                    // Converte a resposta JSON em objeto/array JavaScript
+                    const produtos = await res.json();
+
+                    // Seleciona o corpo da tabela (<tbody>)
+                    const tbody = document.querySelector('tbody');
+                    // Limpa a tabela antes de inserir os dados atualizados
+                    tbody.innerHTML = '';
+
+                    // Itera sobre cada produto e cria uma linha (<tr>) para a tabela
+                    produtos.forEach(p => {
+                        const tr = document.createElement('tr');
+                        // Define o conteúdo da linha com os dados do produto
+                        tr.innerHTML = `
+                <td>${p.id}</td>
+                <td>${p.nome}</td>
+                <td>${p.preco.toFixed(2)}</td> <!-- Formata preço com 2 casas decimais -->
+                <td>${p.quantidade}</td>
+                <td class="actions">
+                  <a href="/edit/${p.id}" class="btn btn-edit"> Editar</a>
+                  <a href="/delete/${p.id}" class="btn btn-delete" onclick="return confirm('Excluir ${p.nome}?')">Excluir</a>
+                </td>
+            `;
+                        // Adiciona a linha criada ao corpo da tabela
+                        tbody.appendChild(tr);
+                    });
+                } catch (err) {
+                    // Em caso de erro na requisição ou processamento, mostra no console
+                    console.error('Erro ao atualizar tabela:', err);
+                }
+            }
+
+            // Chama a função atualizarTabela a cada 3 segundos (3000 ms) para manter a tabela atualizada
+            setInterval(atualizarTabela, 3000);
+
+    </script>
+</body>
+
+</html>

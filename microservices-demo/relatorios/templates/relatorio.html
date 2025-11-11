@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Vendas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='relatorioStyle.css') }}">
+</head>
+
+<body>
+    <h1>Relatório de Vendas</h1>
+
+    <table id="tabela-vendas">
+        <thead>
+            <tr>
+                <th>Nome do Produto</th>
+                <th>Preço</th>
+                <th>Quantidade Vendida</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Vendas serão inseridas aqui pelo JS -->
+        </tbody>
+    </table>
+
+    <div id="empty-message">Nenhuma venda registrada ainda.</div>
+
+    <script>
+        // Função assíncrona que busca as vendas do servidor e atualiza a tabela HTML
+            async function atualizarRelatorio() {
+                try {
+                    // Faz uma requisição GET para a API de vendas
+                    const res = await fetch('/api/vendas');
+                    if (!res.ok) throw new Error('Erro na requisição');
+
+                    // Converte a resposta JSON em objeto/array JavaScript
+                    const vendas = await res.json();
+
+                    // Seleciona o corpo da tabela de vendas
+                    const tbody = document.querySelector('#tabela-vendas tbody');
+                    // Limpa a tabela antes de inserir os dados atualizados
+                    tbody.innerHTML = '';
+
+                    // Se não houver vendas, mostra a mensagem de tabela vazia
+                    if (vendas.length === 0) {
+                        document.getElementById('empty-message').style.display = 'block';
+                    } else {
+                        // Esconde a mensagem de tabela vazia
+                        document.getElementById('empty-message').style.display = 'none';
+
+                        // Itera sobre cada venda e cria uma linha (<tr>) para a tabela
+                        vendas.forEach(v => {
+                            const tr = document.createElement('tr');
+                            // Define o conteúdo da linha com os dados da venda
+                            tr.innerHTML = `
+                    <td>${v.nome}</td>
+                    <td>R$ ${parseFloat(v.preco).toFixed(2)}</td> <!-- Formata preço com 2 casas decimais -->
+                    <td>${v.quantidade}</td>
+                `;
+                            // Adiciona a linha criada ao corpo da tabela
+                            tbody.appendChild(tr);
+                        });
+                    }
+                } catch (err) {
+                    // Em caso de erro na requisição ou processamento, mostra no console
+                    console.error('Erro ao atualizar relatório:', err);
+                }
+            }
+
+            // Atualiza o relatório automaticamente a cada 2 segundos (2000 ms)
+            setInterval(atualizarRelatorio, 2000);
+
+            // Atualiza o relatório na primeira carga da página
+            atualizarRelatorio();
+
+    </script>
+</body>
+
+</html>
