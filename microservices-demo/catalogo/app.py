@@ -1,5 +1,5 @@
 # Importa as bibliotecas necessárias do Flask
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify
 # Importa a biblioteca requests para fazer requisições HTTP para outros serviços
 import requests
 
@@ -16,7 +16,7 @@ def index():
     # Renderiza o template HTML 'index.html'
     return render_template('index.html')
 
-# Rota que lista todos os produtos (chamada pelo frontend via AJAX ou API)
+# Rota que lista todos os produtos 
 @app.route('/api/produtos', methods=['GET'])
 def listar_produtos():
     try:
